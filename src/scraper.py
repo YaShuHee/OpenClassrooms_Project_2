@@ -9,34 +9,43 @@ from bs4 import BeautifulSoup
 
 # BEAUTIFULSOUP MANIPULATION FUNCTIONS ---------------------------------------
 def get_soup(url: str) -> BeautifulSoup:
-    """ Parse an URL and return a BeautifulSoup object. """
-    pass
+    """ Send a GET request to the given URL, parse the returned HTML
+    and return a BeautifulSoup object, which can be used to scrape data. """
+    return BeautifulSoup(requests.get(url).content, "html.parser")
 
 
 # EXTRACTION FUNCTIONS -------------------------------------------------------
-def extract_product_informations(soup: BeautifulSoup) -> dict:
+def extract_product_informations(url: str) -> dict:
     """ Extract all the product informations from its soup. """
-    pass
+    soup = get_soup(url)
+    return {
+        "product_page_url": url,
+        **extract_product_title(soup),
+        **extract_product_category(soup),
+        **extract_product_review_rating(soup),
+        **extract_product_description(soup),
+        **extract_product_infos_from_table(soup)
+    }
 
 
 def extract_product_title(soup: BeautifulSoup) -> dict:
     """ Extract the product title from its soup. """
-    pass
+    return {"title": soup.find("h1").string}
 
 
 def extract_product_category(soup: BeautifulSoup) -> dict:
     """ Extract the product category from its soup. """
-    pass
+    return {"category": soup.find("ul", class_="breadcrumb").find_all("a")[-1].string}
 
 
 def extract_product_review_rating(soup: BeautifulSoup) -> dict:
     """ Extract the product review rating from its soup. """
-    pass
+    return {"review_rating": soup.find("p", class_="star-rating")["class"][1]}
 
 
 def extract_product_description(soup: BeautifulSoup) -> dict:
     """ Extract the product description from its soup. """
-    pass
+    return {"product_description": soup.find("div", id="product_description").find_next("p").string}
 
 
 def extract_product_infos_from_table(soup: BeautifulSoup) -> dict:
@@ -45,7 +54,10 @@ def extract_product_infos_from_table(soup: BeautifulSoup) -> dict:
             - price_including_tax,
             - price_excluding_tax,
             - number_available. """
-    pass
+    headers_to_extract = ("UPC", "Price (excl. tax)", "Price (incl. tax)", "Availability")
+    th_tags = soup.find("table", class_="table table-striped").find_all("th")
+    infos = {th.string: th.find_next("td").string for th in th_tags if th.string in headers_to_extract}
+    return infos
 
 
 # TRANSFORMATION FUNCTIONS ---------------------------------------------------
