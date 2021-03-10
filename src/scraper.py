@@ -5,6 +5,7 @@
 import requests
 import bs4
 from bs4 import BeautifulSoup
+from functools import cache
 
 
 # BEAUTIFULSOUP MANIPULATION FUNCTIONS ---------------------------------------
@@ -21,16 +22,22 @@ def extract_product_informations(url: str) -> dict:
     return {
         "product_page_url": url,
         **extract_product_title(soup),
+        **extract_product_description(soup),
         **extract_product_category(soup),
         **extract_product_review_rating(soup),
-        **extract_product_description(soup),
-        **extract_product_infos_from_table(soup)
+        **extract_product_image_url(soup),
+        **extract_product_infos_from_table(soup),
     }
 
 
 def extract_product_title(soup: BeautifulSoup) -> dict:
     """ Extract the product title from its soup. """
     return {"title": soup.find("h1").string}
+
+
+def extract_product_description(soup: BeautifulSoup) -> dict:
+    """ Extract the product description from its soup. """
+    return {"product_description": soup.find("div", id="product_description").find_next("p").string}
 
 
 def extract_product_category(soup: BeautifulSoup) -> dict:
@@ -43,9 +50,12 @@ def extract_product_review_rating(soup: BeautifulSoup) -> dict:
     return {"review_rating": soup.find("p", class_="star-rating")["class"][1]}
 
 
-def extract_product_description(soup: BeautifulSoup) -> dict:
-    """ Extract the product description from its soup. """
-    return {"product_description": soup.find("div", id="product_description").find_next("p").string}
+def extract_product_image_url(soup: BeautifulSoup) -> dict:
+    """ Extract the product image URL. """
+    return {
+        "image_url":
+            soup.find("div", class_="item active").find("img")["src"]
+    }
 
 
 def extract_product_infos_from_table(soup: BeautifulSoup) -> dict:
@@ -63,35 +73,67 @@ def extract_product_infos_from_table(soup: BeautifulSoup) -> dict:
 # TRANSFORMATION FUNCTIONS ---------------------------------------------------
 def transform_product_informations(extracted_infos: dict) -> dict:
     """ Transform all the previously extracted product informations. """
-    pass
+    transformed_informations = {
+        "product_page_url":
+            extracted_infos["product_page_url"],
+        "universal_product_code":
+            extracted_infos["UPC"],
+        "title":
+            extracted_infos["title"],
+        "price_including_tax":
+            transform_product_prices(extracted_infos["Price (incl. tax)"]),
+        "price_excluding_tax":
+            transform_product_prices(extracted_infos["Price (excl. tax)"]),
+        "number_available":
+            transform_product_availability(extracted_infos["Availability"]),
+        "product_description":
+            transform_product_description(extracted_infos["product_description"]),
+        "category":
+            extracted_infos["category"],
+        "review_rating":
+            transform_product_review_rating(extracted_infos["review_rating"]),
+        "image_url":
+            transform_product_image_url(extracted_infos["image_url"]),
+    }
+    transformed_informations = {
+        key: quote(value) for key, value in transformed_informations.items()
+    }
+    return transformed_informations
 
 
-def transform_product_review_rating(review_rating) -> str:
-    """ Format the product review rating. """
-    pass
-
-
-def transform_product_description(description: str) -> str:
-    """ Format the product description. """
-    pass
-
-
-def transform_product_infos_from_table(table_infos: dict) -> str:
-    """ Transform the following product informations, previously extracted :
-            - price_including_tax,
-            - price_excluding_tax,
-            - number_available. """
-    pass
+def quote(string: str) -> str:
+    return f"\"{string}\""
 
 
 def transform_product_prices(price: str) -> str:
     """ Format the product prices. """
-    pass
+    return price[1:]
 
 
 def transform_product_availability(availabilty: str) -> str:
     """ Format the product availability. """
-    pass
+    return availabilty.replace("In stock (", "").replace(" available)", "")
+
+
+def transform_product_description(description: str) -> str:
+    """ Format the product description. """
+    return description.replace("\"", "\"\"")
+
+
+@cache  # will calculate only once for each argument
+def transform_product_review_rating(review_rating: str) -> str:
+    """ Format the product review rating. """
+    return {
+        "One": "1",
+        "Two": "2",
+        "Three": "3",
+        "Four": "4",
+        "Five": "5"
+    }[review_rating]
+
+
+def transform_product_image_url(url: str) -> str:
+    return url.replace("../..", "https://books.toscrape.com")
 
 
 # LOADING FUNCTIONS ----------------------------------------------------------
