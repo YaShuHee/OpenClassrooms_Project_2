@@ -2,20 +2,26 @@
 # coding: utf-8
 
 
+# IMPORTS -------------------------------------------------------------------+
+# +--- Scraping imports -----------------------------------------------------+
 import requests
 import bs4
 from bs4 import BeautifulSoup
+
+
+# +--- Decorator imports ----------------------------------------------------+
 from functools import cache
 
 
-# BEAUTIFULSOUP MANIPULATION FUNCTIONS ---------------------------------------
+# FUNCTIONS -----------------------------------------------------------------+
+# +--- BeautifulSoup4 manipulations functions -------------------------------+
 def get_soup(url: str) -> BeautifulSoup:
     """ Send a GET request to the given URL, parse the returned HTML
     and return a BeautifulSoup object, which can be used to scrape data. """
     return BeautifulSoup(requests.get(url).content, "html.parser")
 
 
-# EXTRACTION FUNCTIONS -------------------------------------------------------
+# +--- Extraction functions -------------------------------------------------+
 def extract_product_informations(url: str) -> dict:
     """ Extract all the product informations from its soup. """
     soup = get_soup(url)
@@ -70,7 +76,7 @@ def extract_product_infos_from_table(soup: BeautifulSoup) -> dict:
     return infos
 
 
-# TRANSFORMATION FUNCTIONS ---------------------------------------------------
+# +--- Transformation functions ---------------------------------------------+
 def transform_product_informations(extracted_infos: dict) -> dict:
     """ Transform all the previously extracted product informations. """
     transformed_informations = {
@@ -136,7 +142,22 @@ def transform_product_image_url(url: str) -> str:
     return url.replace("../..", "https://books.toscrape.com")
 
 
-# LOADING FUNCTIONS ----------------------------------------------------------
+# +--- Loading functions ----------------------------------------------------+
 def generate_product_informations_csv(transformed_infos: dict) -> dict:
-    """ Generate and write the product CSV. """
-    pass
+    """ Generate the product CSV content. """
+    csv_content = ""
+    to_write = ""
+    for column in transformed_infos.keys():
+        to_write += f"{column}, "
+    csv_content += to_write[:-2] + "\n"
+    to_write = ""
+    for value in transformed_infos.values():
+        to_write += f"{value}, "
+    csv_content += to_write[:-2]
+    return csv_content
+
+
+def write_csv(file_path: str, csv_content: str) -> bool:
+    """ Write the CSV. """
+    with open(file_path, "w") as file:
+        file.write(csv_content)
