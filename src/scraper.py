@@ -148,11 +148,11 @@ def generate_product_informations_csv(transformed_infos: dict) -> dict:
     csv_content = ""
     to_write = ""
     for column in transformed_infos.keys():
-        to_write += f"{column}, "
+        to_write += f"{column},"
     csv_content += to_write[:-2] + "\n"
     to_write = ""
     for value in transformed_infos.values():
-        to_write += f"{value}, "
+        to_write += f"{value},"
     csv_content += to_write[:-2]
     return csv_content
 
