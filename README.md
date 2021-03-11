@@ -198,4 +198,4 @@ pip install -r requirements.txt
 ```
 Félicitations !
 Votre environnement virtuel est complètement installé.
-Désormais, dès que vous voulez utiliser ce projet, activez simplement votre environnement virtuel et suivez le [Mode d'emploi](#mode-d-emploi).
+Désormais, dès que vous voulez utiliser ce projet, activez simplement votre environnement virtuel et suivez le [Mode d'emploi](#mode-demploi).
