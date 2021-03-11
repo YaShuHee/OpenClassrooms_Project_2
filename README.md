@@ -76,7 +76,7 @@ It will create a directory named "env", including a full Python3 virtual environ
     ```shell script
     . ./env/bin/activate
     ```
- To exit the virtual environment without exiting your commandline, run this :
+To exit the virtual environment without exiting your commandline, run this :
  ```shell script
 deactivate
 ```
@@ -98,3 +98,104 @@ pip install -r requirements.txt
 Congratulations !
 Your virtual environment is fully installed.
 From now, whenever you want to run the project, just activate your environment and follow the [User instructions](#user-instructions).
+
+<br><br><br><br>
+# [FR] Script Python de scraping du site [Books to scrape](https://books.toscrape.com)
+
+## Fonctionnalités
+* Scraping d'une page produit du site [Books to scrape](https://books.toscrape.com) à l'aide de BeautifulSoup4.
+
+* Implémentation du processus ETL (extract - transform - load) :
+    1. Extraction des données de la page.    
+    2. Transformation et formatage des données en vue de leur intégration au fichier CSV. 
+    3. Création d'un fichier CSV avec les caractéristiques suivantes :
+        1. Les colonnes sont les suivantes (dans cet ordre) :
+            * product_page_url,
+            * universal_product_code,
+            * title,
+            * price_including_tax,
+            * price_excluding_tax,
+            * number_available,
+            * product_description,
+            * category,
+            * review_rating,
+            * image_url.
+        2. Les colonnes sont séparées par des virgules.
+        3. Il n'y a qu'une ligne d'informations/champs (un seul produit).
+        4. Les champs sont séparés par des virgules.
+        5. Les champs sont délimités par des guillemets (on escape les guillemets à l'intérieur des champs en les doublant).
+
+* À l'exécution du script main.py, choix interactif de la sauvegarde du fichier ainsi que son nom et son dossier de destination.
+
+* Le fichier CSV créé peut être ouvert à l'aide de Libre Office Calc, Microsoft Office Excel ou tout autre lecteur/éditeur de fichiers CSV.
+
+
+<br><br><br>
+## Mode d'emploi
+Exécutez simplement le script main.py avec python en tapant la commande suivante depuis la racine du projet :
+```shell script
+python3 ./src/main.py
+```
+
+<br><br><br>
+## Installation
+
+### Téléchargez le code source (et décompressez l'archive si nécessaire)
+Téléchargez le code source en utilisant l'une des trois méthodes suivantes :
+* Cliquez sur ce lien [link](https://github.com/YaShuHee/OpenClassrooms_Project_2/archive/production.zip) et décompressez l'archive téléchargée.
+* Depuis GitHub, cliquez sur "Code > Download ZIP" et décompressez l'archive téléchargée.
+* Après avoir installé [Git](https://git-scm.com/downloads), clonez le code source à l'aide de la commande :
+    ```shell script
+    git clone https://github.com/YaShuHee/OpenClassrooms_Project_2
+    ```
+
+<br><br>
+### Configuration de l'environnement
+
+#### Installez Python3
+Installez [Python3](https://www.python.org/downloads/) sur votre ordinateur (version 3.7 ou plus).
+
+#### Créez un environnement virtuel Python3
+Exécutez cette commande depuis la racine du projet "OpenClassrooms_Project_2" que vous avez téléchargé plus tôt :
+```shell script
+python3 -m venv env
+```
+Un dossier "env" est créé, contenant un environnement virtuel Python3 totalement fonctionnel et indépendant de votre installation principale de Python3, avec ses propres packets installés.
+
+* Sur Windows :
+    Vous pouvez désormais activer votre environnement virtuel (pour exécuter du code ou modifier les packets installées) en exécutant la commande suivante :
+    ```shell script
+    . .\env\Scripts\activate
+    ```
+
+* Sur Linux/MacOS :
+    Vous devez rendre le fichier d'activation de l'environnement exécutable (seulement lors de l'installation), en exécutant la commande suivante :
+    ```shell script
+    sudo chmod +x ./bin/activate
+    ```
+    Vous pouvez désormais activer votre environnement virtuel (pour exécuter du code ou modifier les packets installées) en exécutant la commande suivante :
+    ```shell script
+    . ./env/bin/activate
+    ```
+Pour quitter l'environnement virtuel sans fermer le terminal, exécutez la commande suivante :
+ ```shell script
+deactivate
+```
+
+#### Installez les packets prérequis
+Activez l'environnement virtuel créé avec la commande mentionnée précédemment :
+* Sur Windows
+    ```shell script
+    . .\env\Scripts\activate
+    ```
+* Sur Linux/MacOS :
+    ```shell script
+    . ./env/bin/activate
+    ```
+À présent (toujours depuis la racin du projet), exécutez :
+```shell script
+pip install -r requirements.txt
+```
+Félicitations !
+Votre environnement virtuel est complètement installé.
+Désormais, dès que vous voulez utiliser ce projet, activez simplement votre environnement virtuel et suivez le [Mode d'emploi](#mode-d-emploi).
