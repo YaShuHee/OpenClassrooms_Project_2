@@ -38,9 +38,10 @@ class Scraper:
         self.url = url
         self.soup = BeautifulSoup(requests.get(self.url).content, features="html.parser")
 
-    def _quote(string: str) -> str:
+    @staticmethod
+    def quote(string: str) -> str:
         return f"\"{string}\""
-    
+
     def write_csv(self, file_path: str, *info_lines: list):
         with open(file_path, "w") as file:
             file.write("\n".join([Scraper.csv_columns_line, *info_lines]))
@@ -153,7 +154,7 @@ class ProductScraper(Scraper):
             "review_rating": self.review_rating,
             "image_url": self.image_url,
         }
-        return {key: Scraper._quote(value) for key, value in infos_dict.items()}
+        return {key: Scraper.quote(value) for key, value in infos_dict.items()}
 
     @cached_property
     def csv_informations_line(self) -> str:
@@ -165,9 +166,3 @@ class ProductScraper(Scraper):
             file_name = self.title + ".csv"
         file_path = directory + sep + file_name
         super().write_csv(file_path, self.csv_informations_line)
-
-
-# CODE EXECUTION (Test this implementation when runned without being imported)
-if __name__ == '__main__':
-    scraper = ProductScraper("http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html")
-    scraper.write_csv("/home/tim/Workspace/OpenClassrooms/02/OpenClassrooms_Project_2/results")
