@@ -178,9 +178,10 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self, url):
+    def __init__(self, url, category_name: str):
         url = url.replace("index.html", "")
         super(CategoryScraper, self).__init__(url)
+        self.name = category_name
     
     @cached_property
     def _page_number(self) -> int:
@@ -191,10 +192,6 @@ class CategoryScraper(BooksToScrapeScraper):
             return 1
 
     @cached_property
-    def tmp_public_books_url_list(self) -> list:
-        return self._books_url_list
-
-    @cached_property
     def _books_url_list(self) -> list:
         # issue #25, error 404 with "*/page-1.html" url for one page categories
         books_url_list = CategoryPageURLScraper(self.url).books_url_list
@@ -203,11 +200,12 @@ class CategoryScraper(BooksToScrapeScraper):
         return books_url_list
 
     @cached_property
-    def csv_informations_line(self) -> str:
-        pass
+    def csv_informations_lines(self) -> list:
+        return [ProductScraper(url).csv_informations_line for url in self._books_url_list]
 
-    def write_csv(self):
-        pass
+    def write_csv(self, directory: str):
+        file_path = directory + sep + self.name + ".csv"
+        BooksToScrapeScraper.write_csv(file_path, *self.csv_informations_lines)
 
 
 # +--- Website Scraper class -------------------------------------------------+
@@ -224,8 +222,7 @@ class WebsiteScraper(BooksToScrapeScraper):
 
 
 if __name__ == '__main__':
-    # must return 6
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html").tmp_public_books_url_list)
-    # must return 1
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html").tmp_public_books_url_list)
+    results_directory = input("result directory ?\n")
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html", "Nonfiction").write_csv(results_directory))
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html", "Health").write_csv(results_directory))
 
