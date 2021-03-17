@@ -178,12 +178,17 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self):
-        pass
+    @cached_property
+    def _page_number(self) -> int:
+        pager = self.soup.find("ul", class_="pager")
+        if pager:
+            return int(pager.find("li", class_="current").string.split()[3])
+        else:
+            return 1
 
     @cached_property
-    def _page_numbers(self) -> int:
-        pass
+    def tmp_public_page_number(self) -> int:
+        return self._page_number
 
     @cached_property
     def _books_url_list(self) -> list:
@@ -211,5 +216,8 @@ class WebsiteScraper(BooksToScrapeScraper):
 
 
 if __name__ == '__main__':
-    for url in CategoryPageURLScraper("http://books.toscrape.com/catalogue/category/books/historical-fiction_4/index.html").books_url_list:
-        print(url)
+    # must return 6
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/page-5.html").tmp_public_page_number)
+    # must return 1
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html").tmp_public_page_number)
+
