@@ -219,10 +219,3 @@ class WebsiteScraper(BooksToScrapeScraper):
 
     def _write_csv_files(self) -> None:
         pass
-
-
-if __name__ == '__main__':
-    results_directory = input("result directory ?\n")
-    CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html", "Nonfiction").write_csv(results_directory)
-    CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html", "Health").write_csv(results_directory)
-

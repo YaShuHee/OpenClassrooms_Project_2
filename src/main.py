@@ -9,24 +9,20 @@ from scraper import *
 
 # FUNCTIONS -----------------------------------------------------------------+
 def main():
-    url = input("Copy and paste a product page URL from the website https://books.toscrape.com:\n")
+    url = input("Copy and paste a category first page URL from the website https://books.toscrape.com:\n")
+    category_name = input("Category name (will be your filename):\n")
 
-    # ProductScraper object initialisation
-    product_scraper = ProductScraper(url)
+    # CategoryScraper object initialisation
+    category_scraper = CategoryScraper(url, category_name)
 
-    # asking to user if they want to generate the csv
+    # asking to user where they want the file to be created
+    directory = input("Copy and paste the directory where you want to create the CSV :\n")
+    filename = category_name + ".csv"
     answer = ""
     while answer != "y" and answer != "n":
-        answer = input("Generate a CSV file for the extracted data ? (y/n) ").lower()
+        answer = input(f"Scraping may take several minutes. Confirm creation of the file \"{filename}\" ? (y/n) ").lower()
     if answer == "y":
-        # asking to user where they want the file to be created
-        directory = input("Copy and paste the directory where you want to create the CSV :")
-        filename = input("Chose the file name :")
-        answer = ""
-        while answer != "y" and answer != "n":
-            answer = input(f"Confirm creation of the file \"{filename}\" ? (y/n) ").lower()
-        if answer == "y":
-            product_scraper.write_csv(directory, filename)
+        category_scraper.write_csv(directory)
 
 
 # CODE EXECUTION ------------------------------------------------------------+
