@@ -18,8 +18,15 @@ from os import sep
 
 
 # CLASSES -------------------------------------------------------------------+
-# +--- books.toscrape.com generic scraper class -----------------------------+
+# +--- BeautifulSoup4 generic HTML page scraper -----------------------------+
 class Scraper:
+    def __init__(self, url: str):
+        self.url = url
+        self.soup = BeautifulSoup(requests.get(self.url).content, features="html.parser")
+
+
+# +--- books.toscrape.com generic scraper class -----------------------------+
+class BooksToScrapeScraper(Scraper):
     columns_tuple = (
             "product_page_url",
             "universal_product_code",
@@ -34,24 +41,18 @@ class Scraper:
             )
     csv_columns_line = ",".join(columns_tuple)
 
-    def __init__(self, url: str):
-        self.url = url
-        self.soup = BeautifulSoup(requests.get(self.url).content, features="html.parser")
-
     @staticmethod
     def quote(string: str) -> str:
         return f"\"{string}\""
 
-    def write_csv(self, file_path: str, *info_lines: list):
+    @staticmethod
+    def write_csv(file_path: str, *info_lines: list) -> None:
         with open(file_path, "w") as file:
-            file.write("\n".join([Scraper.csv_columns_line, *info_lines]))
+            file.write("\n".join([BooksToScrapeScraper.csv_columns_line, *info_lines]))
 
 
 # +--- Product Scraper class ------------------------------------------------+
-class ProductScraper(Scraper):
-    def __init__(self, url: str):
-        Scraper.__init__(self, url)
-
+class ProductScraper(BooksToScrapeScraper):
     # extraction private properties ------------------------------------------
     @cached_property
     def _extracted_product_informations_from_table(self) -> str:
@@ -154,15 +155,59 @@ class ProductScraper(Scraper):
             "review_rating": self.review_rating,
             "image_url": self.image_url,
         }
-        return {key: Scraper.quote(value) for key, value in infos_dict.items()}
+        return {key: super(ProductScraper, self).quote(value) for key, value in infos_dict.items()}
 
     @cached_property
     def csv_informations_line(self) -> str:
         return ",".join(self._informations_dict.values())
 
     # load method ------------------------------------------------------------
-    def write_csv(self, directory: str, file_name: str = ""):
+    def write_csv(self, directory: str, file_name: str = "") -> None:
         if file_name == "":
             file_name = self.title + ".csv"
         file_path = directory + sep + file_name
-        super().write_csv(file_path, self.csv_informations_line)
+        super(ProductScraper, self).write_csv(file_path, self.csv_informations_line)
+
+
+# +--- Category page URLs Scraper class -------------------------------------+
+class CategoryPageURLScraper(Scraper):
+    def __init__(self):
+        pass
+
+    @cached_property
+    def books_url_lists(self) -> list:
+        pass
+
+
+# +--- Category Scraper class ------------------------------------------------+
+class CategoryScraper(BooksToScrapeScraper):
+    def __init__(self):
+        pass
+
+    @cached_property
+    def _page_numbers(self) -> int:
+        pass
+
+    @cached_property
+    def _books_url_list(self) -> list:
+        pass
+
+    @cached_property
+    def csv_informations_line(self) -> str:
+        pass
+
+    def write_csv(self):
+        pass
+
+
+# +--- Website Scraper class -------------------------------------------------+
+class WebsiteScraper(BooksToScrapeScraper):
+    def __init__(self):
+        pass
+
+    @cached_property
+    def _categories_list(self) -> list:
+        pass
+
+    def _write_csv_files(self) -> None:
+        pass
