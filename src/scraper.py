@@ -47,7 +47,7 @@ class BooksToScrapeScraper(Scraper):
 
     @staticmethod
     def write_csv(file_path: str, *info_lines: list) -> None:
-        with open(file_path, "w") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write("\n".join([BooksToScrapeScraper.csv_columns_line, *info_lines]))
 
 
@@ -223,6 +223,6 @@ class WebsiteScraper(BooksToScrapeScraper):
 
 if __name__ == '__main__':
     results_directory = input("result directory ?\n")
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html", "Nonfiction").write_csv(results_directory))
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html", "Health").write_csv(results_directory))
+    CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html", "Nonfiction").write_csv(results_directory)
+    CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html", "Health").write_csv(results_directory)
 
