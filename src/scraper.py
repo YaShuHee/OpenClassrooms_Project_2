@@ -178,6 +178,10 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
+    def __init__(self, url):
+        url = url.replace("index.html", "")
+        super(CategoryScraper, self).__init__(url)
+    
     @cached_property
     def _page_number(self) -> int:
         pager = self.soup.find("ul", class_="pager")
@@ -187,12 +191,15 @@ class CategoryScraper(BooksToScrapeScraper):
             return 1
 
     @cached_property
-    def tmp_public_page_number(self) -> int:
-        return self._page_number
+    def tmp_public_books_url_list(self) -> list:
+        return self._books_url_list
 
     @cached_property
     def _books_url_list(self) -> list:
-        pass
+        books_url_list = []
+        for page in range(1, self._page_number + 1):
+            books_url_list += CategoryPageURLScraper(f"{self.url}page-{page}.html").books_url_list
+        return books_url_list
 
     @cached_property
     def csv_informations_line(self) -> str:
@@ -217,7 +224,7 @@ class WebsiteScraper(BooksToScrapeScraper):
 
 if __name__ == '__main__':
     # must return 6
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/page-5.html").tmp_public_page_number)
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/nonfiction_13/index.html").tmp_public_books_url_list)
     # must return 1
-    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html").tmp_public_page_number)
+    print(CategoryScraper("http://books.toscrape.com/catalogue/category/books/health_47/index.html").tmp_public_books_url_list)
 
