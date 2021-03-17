@@ -171,12 +171,9 @@ class ProductScraper(BooksToScrapeScraper):
 
 # +--- Category page URLs Scraper class -------------------------------------+
 class CategoryPageURLScraper(Scraper):
-    def __init__(self):
-        pass
-
     @cached_property
-    def books_url_lists(self) -> list:
-        pass
+    def books_url_list(self) -> list:
+        return [article.find("a")["href"].replace("../../..", "http://books.toscrape.com/catalogue") for article in self.soup.find_all("article")]
 
 
 # +--- Category Scraper class ------------------------------------------------+
@@ -211,3 +208,8 @@ class WebsiteScraper(BooksToScrapeScraper):
 
     def _write_csv_files(self) -> None:
         pass
+
+
+if __name__ == '__main__':
+    for url in CategoryPageURLScraper("http://books.toscrape.com/catalogue/category/books/historical-fiction_4/index.html").books_url_list:
+        print(url)
