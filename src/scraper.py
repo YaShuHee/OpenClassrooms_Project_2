@@ -196,8 +196,9 @@ class CategoryScraper(BooksToScrapeScraper):
 
     @cached_property
     def _books_url_list(self) -> list:
-        books_url_list = []
-        for page in range(1, self._page_number + 1):
+        # issue #25, error 404 with "*/page-1.html" url for one page categories
+        books_url_list = CategoryPageURLScraper(self.url).books_url_list
+        for page in range(2, self._page_number + 1):
             books_url_list += CategoryPageURLScraper(f"{self.url}page-{page}.html").books_url_list
         return books_url_list
 
