@@ -1,9 +1,11 @@
 # [EN] [Books to scrape](https://books.toscrape.com) scraping Python script
 
 ## Features
-* Scrape a product page from the [Books to scrape](https://books.toscrape.com) website using BeautifulSoup4.
+* Scrape a category page from the [Books to scrape](https://books.toscrape.com) website using BeautifulSoup4.
 
-* Implement an ETL (extract - transform - load) process :
+* Implement an object from **CategoryScraper** class that scrape the books list from a given category.
+
+* Implement an object from **ProductScraper** class that scrape informations for each books from the category, using an ETL (extract - transform - load) process :
     1. Extract the data from the page.    
     2. Transform the data so they fit the CSV file format.
     3. Write a CSV with following characteristics :
@@ -19,11 +21,11 @@
             * review_rating,
             * image_url.
         2. Columns are separated by commas.
-        3. There is only one data record/line of fields (one product).
+        3. Data record/line of fields (one by product) are separated by new lines.
         4. Fields are separated by commas.
         5. Fields are delimited by double-quotes (double-quotes inside fields are escaped by being replaced by two double-quotes).
 
-* When running the main.py script, a terminal dialog let you chose if you want to generate a CSV file with the scraped data, and the file name and directory.
+* When running the main.py script, a terminal dialog let you chose the category you want to scrape.
 
 * The created CSV files can be opened with Libre Office Calc, Microsoft Office Excel or any CSV file reader/editor.
 
