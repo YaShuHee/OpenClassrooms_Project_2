@@ -178,7 +178,7 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self, url, category_name: str):
+    def __init__(self, url: str, category_name: str):
         url = url.replace("index.html", "")
         super(CategoryScraper, self).__init__(url)
         self.name = category_name
@@ -211,11 +211,20 @@ class CategoryScraper(BooksToScrapeScraper):
 # +--- Website Scraper class -------------------------------------------------+
 class WebsiteScraper(BooksToScrapeScraper):
     def __init__(self):
-        pass
+        super(WebsiteScraper, self).__init__("https://books.toscrape.com/")
 
     @cached_property
-    def _categories_list(self) -> list:
-        pass
+    def tmp_public_categories(self) -> dict:
+        return self._categories
+
+    @cached_property
+    def _categories(self) -> dict:
+        return {" ".join(a.string.split()): self.url + a["href"] for a in self.soup.find("ul", class_="nav nav-list").find("ul").find_all("a")}
 
     def _write_csv_files(self) -> None:
         pass
+
+
+if __name__ == '__main__':
+    for name, url in WebsiteScraper().tmp_public_categories.items():
+        print(name, ":", url)
