@@ -83,7 +83,11 @@ class ProductScraper(BooksToScrapeScraper):
     
     @cached_property
     def _extracted_product_description(self) -> str:
-        return self.soup.find("div", id="product_description").find_next("p").string 
+        tag = self.soup.find("div", id="product_description")
+        if tag:
+            return tag.find_next("p").string
+        else:
+            return "No description for this book."
     
     @cached_property
     def _extracted_category(self) -> str:
@@ -178,7 +182,7 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self, url, category_name: str):
+    def __init__(self, url: str, category_name: str):
         url = url.replace("index.html", "")
         super(CategoryScraper, self).__init__(url)
         self.name = category_name
@@ -210,12 +214,15 @@ class CategoryScraper(BooksToScrapeScraper):
 
 # +--- Website Scraper class -------------------------------------------------+
 class WebsiteScraper(BooksToScrapeScraper):
-    def __init__(self):
-        pass
+    def __init__(self, directory):
+        super(WebsiteScraper, self).__init__("https://books.toscrape.com/")
+        self.directory = directory
+        self._write_csv_files()
 
     @cached_property
-    def _categories_list(self) -> list:
-        pass
+    def _categories(self) -> dict:
+        return {" ".join(a.string.split()): self.url + a["href"] for a in self.soup.find("ul", class_="nav nav-list").find("ul").find_all("a")}
 
     def _write_csv_files(self) -> None:
-        pass
+        for name, url in self._categories.items():
+            CategoryScraper(url, name).write_csv(self.directory)
