@@ -210,21 +210,19 @@ class CategoryScraper(BooksToScrapeScraper):
 
 # +--- Website Scraper class -------------------------------------------------+
 class WebsiteScraper(BooksToScrapeScraper):
-    def __init__(self):
+    def __init__(self, directory):
         super(WebsiteScraper, self).__init__("https://books.toscrape.com/")
-
-    @cached_property
-    def tmp_public_categories(self) -> dict:
-        return self._categories
+        self.directory = directory
+        self._write_csv_files()
 
     @cached_property
     def _categories(self) -> dict:
         return {" ".join(a.string.split()): self.url + a["href"] for a in self.soup.find("ul", class_="nav nav-list").find("ul").find_all("a")}
 
     def _write_csv_files(self) -> None:
-        pass
+        for name, url in self._categories.items():
+            CategoryScraper(url, name).write_csv(self.directory)
 
 
 if __name__ == '__main__':
-    for name, url in WebsiteScraper().tmp_public_categories.items():
-        print(name, ":", url)
+    WebsiteScraper(input("Results directory ?\n"))
