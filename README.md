@@ -1,11 +1,13 @@
 # [EN] [Books to scrape](https://books.toscrape.com) scraping Python script
 
 ## Features
-* Scrape a category page from the [Books to scrape](https://books.toscrape.com) website using BeautifulSoup4.
+* Scrape books informations from the [Books to scrape](https://books.toscrape.com) website using BeautifulSoup4 and generate CSV files.
 
-* Implement an object from **CategoryScraper** class that scrape the books list from a given category.
+* Implement an object from **WebsiteScraper** class that scrapes the books categories and call a **CategoryScraper** for each found one.
 
-* Implement an object from **ProductScraper** class that scrape informations for each books from the category, using an ETL (extract - transform - load) process :
+* Implement an object from **CategoryScraper** class that scrape the books URLs for each category and call a **ProductScraper** for each found one.
+
+* Implement an object from **ProductScraper** class that scrape informations from a product page, using an ETL (extract - transform - load) process :
     1. Extract the data from the page.    
     2. Transform the data so they fit the CSV file format.
     3. Write a CSV with following characteristics :
@@ -25,7 +27,7 @@
         4. Fields are separated by commas.
         5. Fields are delimited by double-quotes (double-quotes inside fields are escaped by being replaced by two double-quotes).
 
-* When running the main.py script, a terminal dialog let you chose the category you want to scrape.
+* When running the main.py script, a terminal dialog let you chose the path where the CSV files will be created and ask to confirm it. Then it scrapes the whole website and create one CSV file by books category.
 
 * The created CSV files can be opened with Libre Office Calc, Microsoft Office Excel or any CSV file reader/editor.
 
@@ -105,9 +107,14 @@ From now, whenever you want to run the project, just activate your environment a
 # [FR] Script Python de scraping du site [Books to scrape](https://books.toscrape.com)
 
 ## Fonctionnalités
-* Scraping d'une page produit du site [Books to scrape](https://books.toscrape.com) à l'aide de BeautifulSoup4.
 
-* Implémentation du processus ETL (extract - transform - load) :
+* Scraping des informations du site [Books to scrape](https://books.toscrape.com) à l'aide de BeautifulSoup4 et génération de fichiers CSV.
+
+* Implémentation d'un objet de la classe **WebsiteScraper** qui récupère les catégories de livre et appelle un **CategoryScraper** pour chaque catégorie trouvée.
+
+* Implémentation d'un objet de la classe **CategoryScraper** qui récupère les URL des livres de la catégorie et appelle un **ProductScraper** pour chaque livre trouvé.
+
+* Implémentation d'un objet de la classe **ProductScraper** qui récupère les informations d'une page produit, en utilisant un processus ETL (extract - transform - load) :
     1. Extraction des données de la page.    
     2. Transformation et formatage des données en vue de leur intégration au fichier CSV. 
     3. Création d'un fichier CSV avec les caractéristiques suivantes :
@@ -127,7 +134,7 @@ From now, whenever you want to run the project, just activate your environment a
         4. Les champs sont séparés par des virgules.
         5. Les champs sont délimités par des guillemets (on escape les guillemets à l'intérieur des champs en les doublant).
 
-* À l'exécution du script main.py, choix interactif de la sauvegarde du fichier ainsi que son nom et son dossier de destination.
+* À l'exécution du script main.py, le terminal demande interactivement le chemin vers le dossier dans lequel les fichiers CSV seront générés, puis la confirmation de ce chemin. Ensuite, le site entier est scrapé et un fichier CSV est généré par catégorie.
 
 * Le fichier CSV créé peut être ouvert à l'aide de Libre Office Calc, Microsoft Office Excel ou tout autre lecteur/éditeur de fichiers CSV.
 
