@@ -226,7 +226,3 @@ class WebsiteScraper(BooksToScrapeScraper):
     def _write_csv_files(self) -> None:
         for name, url in self._categories.items():
             CategoryScraper(url, name).write_csv(self.directory)
-
-
-if __name__ == '__main__':
-    WebsiteScraper(input("Results directory ?\n"))
