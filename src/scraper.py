@@ -83,7 +83,11 @@ class ProductScraper(BooksToScrapeScraper):
     
     @cached_property
     def _extracted_product_description(self) -> str:
-        return self.soup.find("div", id="product_description").find_next("p").string 
+        tag = self.soup.find("div", id="product_description")
+        if tag:
+            return tag.find_next("p").string
+        else:
+            return "No description for this book."
     
     @cached_property
     def _extracted_category(self) -> str:
