@@ -26,8 +26,8 @@
         3. Data record/line of fields (one by product) are separated by new lines.
         4. Fields are separated by commas.
         5. Fields are delimited by double-quotes (double-quotes inside fields are escaped by being replaced by two double-quotes).
-
-* When running the main.py script, a terminal dialog let you chose the path where the CSV files will be created and ask to confirm it. Then it scrapes the whole website and create one CSV file by books category.
+* À l'exécution du script main.py, le terminal demande interactivement le chemin vers le dossier dans lequel les fichiers CSV seront générés, puis la confirmation de ce chemin. Ensuite, le site entier est scrapé et un dossier (contenant un fichier CSV et un dossier avec toutes les images de la catégorie) est généré par catégorie.
+* When running the main.py script, a terminal dialog let you chose the path where the CSV files will be created and ask to confirm it. Then it scrapes the whole website and create one directory (containing a CSV file and un directory with all the images of the category) by books category.
 
 * The created CSV files can be opened with Libre Office Calc, Microsoft Office Excel or any CSV file reader/editor.
 
@@ -134,7 +134,7 @@ From now, whenever you want to run the project, just activate your environment a
         4. Les champs sont séparés par des virgules.
         5. Les champs sont délimités par des guillemets (on escape les guillemets à l'intérieur des champs en les doublant).
 
-* À l'exécution du script main.py, le terminal demande interactivement le chemin vers le dossier dans lequel les fichiers CSV seront générés, puis la confirmation de ce chemin. Ensuite, le site entier est scrapé et un fichier CSV est généré par catégorie.
+* À l'exécution du script main.py, le terminal demande interactivement le chemin vers le dossier dans lequel les fichiers CSV seront générés, puis la confirmation de ce chemin. Ensuite, le site entier est scrapé et un dossier (contenant un fichier CSV et un dossier avec toutes les images de la catégorie) est généré par catégorie.
 
 * Le fichier CSV créé peut être ouvert à l'aide de Libre Office Calc, Microsoft Office Excel ou tout autre lecteur/éditeur de fichiers CSV.
 

@@ -7,6 +7,7 @@
 import requests
 import bs4
 from bs4 import BeautifulSoup
+from images import Downloader
 
 
 # +--- Decorator imports ----------------------------------------------------+
@@ -14,7 +15,7 @@ from functools import cached_property
 
 
 # +--- Os imports -----------------------------------------------------------+
-from os import sep
+from os import sep, mkdir
 
 
 # CLASSES -------------------------------------------------------------------+
@@ -172,6 +173,15 @@ class ProductScraper(BooksToScrapeScraper):
         file_path = directory + sep + file_name
         super(ProductScraper, self).write_csv(file_path, self.csv_informations_line)
 
+    @cached_property
+    def clean_title(self):
+        title = ""
+        for char in self.title:
+            if not(char in "\\/\":*?<>|"):
+                title += char
+        return title
+
+
 
 # +--- Category page URLs Scraper class -------------------------------------+
 class CategoryPageURLScraper(Scraper):
@@ -182,10 +192,12 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self, url: str, category_name: str):
+    def __init__(self, url: str, category_name: str, directory: str):
         url = url.replace("index.html", "")
         super(CategoryScraper, self).__init__(url)
         self.name = category_name
+        self.directory = directory
+        self._load()
     
     @cached_property
     def _page_number(self) -> int:
@@ -204,11 +216,28 @@ class CategoryScraper(BooksToScrapeScraper):
         return books_url_list
 
     @cached_property
-    def csv_informations_lines(self) -> list:
-        return [ProductScraper(url).csv_informations_line for url in self._books_url_list]
+    def books_scrapers(self):
+        return [ProductScraper(url) for url in self._books_url_list]
 
-    def write_csv(self, directory: str):
-        file_path = directory + sep + self.name + ".csv"
+    @cached_property
+    def csv_informations_lines(self) -> list:
+        return [book_scraper.csv_informations_line for book_scraper in self.books_scrapers]
+
+    def _load(self):
+        # create 'category directory'
+        # create 'images subdirectory'
+        # write the csv in 'category directory'
+        # write the images in the 'image subdirectory'
+        self.directory += sep + self.name
+        self.images_directory = self.directory + sep + "images"
+        mkdir(self.directory)
+        mkdir(self.images_directory)
+        self._write_csv()
+        for book in self.books_scrapers:
+            Downloader(book.image_url, book.clean_title + ".jpg", self.images_directory)
+
+    def _write_csv(self):
+        file_path = self.directory + sep + self.name + ".csv"
         BooksToScrapeScraper.write_csv(file_path, *self.csv_informations_lines)
 
 
@@ -217,12 +246,12 @@ class WebsiteScraper(BooksToScrapeScraper):
     def __init__(self, directory):
         super(WebsiteScraper, self).__init__("https://books.toscrape.com/")
         self.directory = directory
-        self._write_csv_files()
+        self._scrape()
 
     @cached_property
     def _categories(self) -> dict:
         return {" ".join(a.string.split()): self.url + a["href"] for a in self.soup.find("ul", class_="nav nav-list").find("ul").find_all("a")}
 
-    def _write_csv_files(self) -> None:
+    def _scrape(self) -> None:
         for name, url in self._categories.items():
-            CategoryScraper(url, name).write_csv(self.directory)
+            CategoryScraper(url, name, self.directory)
