@@ -18,6 +18,10 @@ from functools import cached_property
 from os import sep, mkdir
 
 
+# +--- Csv import -----------------------------------------------------------+
+import csv
+
+
 # CLASSES -------------------------------------------------------------------+
 # +--- BeautifulSoup4 generic HTML page scraper -----------------------------+
 class Scraper:
@@ -40,16 +44,13 @@ class BooksToScrapeScraper(Scraper):
             "review_rating",
             "image_url"
             )
-    csv_columns_line = ",".join(columns_tuple)
 
     @staticmethod
-    def quote(string: str) -> str:
-        return f"\"{string}\""
-
-    @staticmethod
-    def write_csv(file_path: str, *info_lines: list) -> None:
-        with open(file_path, "w", encoding="utf-8") as file:
-            file.write("\n".join([BooksToScrapeScraper.csv_columns_line, *info_lines]))
+    def write_csv(file_path: str, *books_informations: list) -> None:
+        with open(file_path, "w", encoding="utf-8", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=BooksToScrapeScraper.columns_tuple)
+            writer.writeheader()
+            writer.writerows(books_informations)
 
 
 # +--- Product Scraper class ------------------------------------------------+
@@ -125,7 +126,7 @@ class ProductScraper(BooksToScrapeScraper):
     
     @cached_property
     def product_description(self) -> str:
-        return self._extracted_product_description.replace("\"", "\"\"")
+        return self._extracted_product_description
     
     @cached_property
     def category(self) -> str:
@@ -147,8 +148,8 @@ class ProductScraper(BooksToScrapeScraper):
 
     # extracted and transformed informations merging -------------------------
     @cached_property
-    def _informations_dict(self) -> dict:
-        infos_dict = {
+    def informations(self) -> dict:
+        return {
             "product_page_url": self.url,
             "universal_product_code": self.universal_product_code,
             "title": self.title,
@@ -160,18 +161,6 @@ class ProductScraper(BooksToScrapeScraper):
             "review_rating": self.review_rating,
             "image_url": self.image_url,
         }
-        return {key: super(ProductScraper, self).quote(value) for key, value in infos_dict.items()}
-
-    @cached_property
-    def csv_informations_line(self) -> str:
-        return ",".join(self._informations_dict.values())
-
-    # load method ------------------------------------------------------------
-    def write_csv(self, directory: str, file_name: str = "") -> None:
-        if file_name == "":
-            file_name = self.title + ".csv"
-        file_path = directory + sep + file_name
-        super(ProductScraper, self).write_csv(file_path, self.csv_informations_line)
 
     @cached_property
     def clean_title(self):
@@ -180,7 +169,6 @@ class ProductScraper(BooksToScrapeScraper):
             if not(char in "\\/\":*?<>|"):
                 title += char
         return title
-
 
 
 # +--- Category page URLs Scraper class -------------------------------------+
@@ -236,9 +224,13 @@ class CategoryScraper(BooksToScrapeScraper):
         for book in self.books_scrapers:
             Downloader(book.image_url, book.clean_title + ".jpg", self.images_directory)
 
-    def _write_csv(self):
+    def _write_csv_old(self):
         file_path = self.directory + sep + self.name + ".csv"
         BooksToScrapeScraper.write_csv(file_path, *self.csv_informations_lines)
+
+    def _write_csv(self):
+        file_path = self.directory + sep + self.name + ".csv"
+        BooksToScrapeScraper.write_csv(file_path, *[book.informations for book in self.books_scrapers])
 
 
 # +--- Website Scraper class -------------------------------------------------+

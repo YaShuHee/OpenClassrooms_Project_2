@@ -27,8 +27,3 @@ class Downloader:
     def _write(self):
         with open(self.path, "wb") as file:
             file.write(self.content)
-
-
-# CODE EXECUTION ------------------------------------------------------------+
-if __name__ == '__main__':
-    Downloader("http://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg", "A light in the Attic.jpg", input("directory :"))
