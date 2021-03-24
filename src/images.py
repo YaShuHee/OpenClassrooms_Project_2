@@ -5,18 +5,20 @@
 # IMPORTS -------------------------------------------------------------------+
 # +--- Scraping imports -----------------------------------------------------+
 import requests
+import mimetypes
 
 
 # +--- Os imports -----------------------------------------------------------+
-from os import sep
+import os
 
 
 # CLASS ---------------------------------------------------------------------+
 class Downloader:
-    def __init__(self, url: str, name: str, directory_path: str):
-        self.url = url
-        self.path = directory_path + sep + name
+    def __init__(self, url: str, image_name: str, directory_path: str):
         response = requests.get(url)
+        extension = mimetypes.guess_extension(response.headers["content-type"])
+        if os.path.exists(directory_path):
+            self.path = os.path.join(directory_path, image_name + extension)
         if response.ok:
             self.content = response.content
             self._write()

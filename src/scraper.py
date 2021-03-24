@@ -15,7 +15,7 @@ from functools import cached_property
 
 
 # +--- Os imports -----------------------------------------------------------+
-from os import sep, mkdir
+import os
 
 
 # +--- Csv import -----------------------------------------------------------+
@@ -33,17 +33,17 @@ class Scraper:
 # +--- books.toscrape.com generic scraper class -----------------------------+
 class BooksToScrapeScraper(Scraper):
     columns_tuple = (
-            "product_page_url",
-            "universal_product_code",
-            "title",
-            "price_including_tax",
-            "price_excluding_tax",
-            "number_available",
-            "product_description",
-            "category",
-            "review_rating",
-            "image_url"
-            )
+        "product_page_url",
+        "universal_product_code",
+        "title",
+        "price_including_tax",
+        "price_excluding_tax",
+        "number_available",
+        "product_description",
+        "category",
+        "review_rating",
+        "image_url"
+    )
 
     @staticmethod
     def write_csv(file_path: str, *books_informations: list) -> None:
@@ -73,47 +73,47 @@ class ProductScraper(BooksToScrapeScraper):
     @cached_property
     def _extracted_universal_product_code(self) -> str:
         return self._extracted_product_informations_from_table["UPC"]
-    
+
     @cached_property
     def _extracted_title(self) -> str:
         try:
             return self.soup.find("h1").string
         except AttributeError:
             return "Unknown"
-    
+
     @cached_property
     def _extracted_price_including_tax(self) -> str:
         return self._extracted_product_informations_from_table["Price (incl. tax)"]
-    
+
     @cached_property
     def _extracted_price_excluding_tax(self) -> str:
         return self._extracted_product_informations_from_table["Price (excl. tax)"]
-    
+
     @cached_property
     def _extracted_number_available(self) -> str:
         return self._extracted_product_informations_from_table["Availability"]
-    
+
     @cached_property
     def _extracted_product_description(self) -> str:
         try:
             return self.soup.find("div", id="product_description").find_next("p").string
         except (AttributeError, IndexError) as error:
             return "Unknown"
-    
+
     @cached_property
     def _extracted_category(self) -> str:
         try:
             return self.soup.find("ul", class_="breadcrumb").find_all("a")[-1].string
         except (AttributeError, IndexError) as error:
             return "Unknown"
-    
+
     @cached_property
     def _extracted_review_rating(self) -> str:
         try:
             return self.soup.find("p", class_="star-rating")["class"][1]
         except IndexError:
             return "Unknown"
-    
+
     @cached_property
     def _extracted_image_url(self) -> str:
         try:
@@ -125,40 +125,40 @@ class ProductScraper(BooksToScrapeScraper):
     @cached_property
     def universal_product_code(self) -> str:
         return self._extracted_universal_product_code
-    
+
     @cached_property
     def title(self) -> str:
         return self._extracted_title
-    
+
     @cached_property
     def price_including_tax(self) -> str:
         return self._extracted_price_including_tax[1:]
-    
+
     @cached_property
     def price_excluding_tax(self) -> str:
         return self._extracted_price_excluding_tax[1:]
-    
+
     @cached_property
     def number_available(self) -> str:
         return self._extracted_number_available.replace("In stock (", "").replace(" available)", "")
-    
+
     @cached_property
     def product_description(self) -> str:
         return self._extracted_product_description
-    
+
     @cached_property
     def category(self) -> str:
         return self._extracted_category
-    
+
     @cached_property
     def review_rating(self) -> str:
         return {
-        "One": "1",
-        "Two": "2",
-        "Three": "3",
-        "Four": "4",
-        "Five": "5"
-    }[self._extracted_review_rating]
+            "One": "1",
+            "Two": "2",
+            "Three": "3",
+            "Four": "4",
+            "Five": "5"
+        }[self._extracted_review_rating]
 
     @cached_property
     def image_url(self) -> str:
@@ -198,13 +198,13 @@ class CategoryPageURLScraper(Scraper):
 
 # +--- Category Scraper class ------------------------------------------------+
 class CategoryScraper(BooksToScrapeScraper):
-    def __init__(self, url: str, category_name: str, directory: str):
+    def __init__(self, url: str, category_name: str, directory_path: str):
         url = url.replace("index.html", "")
         super(CategoryScraper, self).__init__(url)
         self.name = category_name
-        self.directory = directory
+        self.directory = directory_path
         self._load()
-    
+
     @cached_property
     def _page_number(self) -> int:
         pager = self.soup.find("ul", class_="pager")
@@ -225,37 +225,34 @@ class CategoryScraper(BooksToScrapeScraper):
     def books_scrapers(self):
         return [ProductScraper(url) for url in self._books_url_list]
 
-    @cached_property
-    def csv_informations_lines(self) -> list:
-        return [book_scraper.csv_informations_line for book_scraper in self.books_scrapers]
-
     def _load(self):
-        # create 'category directory'
-        # create 'images subdirectory'
-        # write the csv in 'category directory'
-        # write the images in the 'image subdirectory'
-        self.directory += sep + self.name
-        self.images_directory = self.directory + sep + "images"
-        mkdir(self.directory)
-        mkdir(self.images_directory)
+        self.directory = os.path.join(self.directory, self.name)
+        self.images_directory = os.path.join(self.directory, "images")
+        try:
+            os.mkdir(self.directory)
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir(self.images_directory)
+        except FileExistsError:
+            pass
         self._write_csv()
         for book in self.books_scrapers:
             Downloader(book.image_url, book.clean_title + ".jpg", self.images_directory)
 
-    def _write_csv_old(self):
-        file_path = self.directory + sep + self.name + ".csv"
-        BooksToScrapeScraper.write_csv(file_path, *self.csv_informations_lines)
-
     def _write_csv(self):
-        file_path = self.directory + sep + self.name + ".csv"
+        file_path = os.path.join(self.directory, self.name + ".csv")
         BooksToScrapeScraper.write_csv(file_path, *[book.informations for book in self.books_scrapers])
 
 
 # +--- Website Scraper class -------------------------------------------------+
 class WebsiteScraper(BooksToScrapeScraper):
-    def __init__(self, directory):
+    def __init__(self, directory_path: str):
         super(WebsiteScraper, self).__init__("https://books.toscrape.com/")
-        self.directory = directory
+        if os.path.exists(directory_path):
+            self.directory = directory_path
+        else:
+            raise FileExistsError
         self._scrape()
 
     @cached_property
