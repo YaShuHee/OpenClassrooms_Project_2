@@ -57,19 +57,18 @@ class BooksToScrapeScraper(Scraper):
 class ProductScraper(BooksToScrapeScraper):
     # extraction private properties ------------------------------------------
     @cached_property
-    def _extracted_product_informations_from_table(self) -> str:
+    def _extracted_product_informations_from_table(self) -> dict:
         informations = {
-            "UPC": "Unknown UPC",
-            "Price (incl. tax)": "Unknown price including tax",
-            "Price (excl. tax)": "Unknown price excluding tax",
-            "Availability": "Unknown number available"
+            "UPC": "Unknown",
+            "Price (incl. tax)": " Unknown",
+            "Price (excl. tax)": " Unknown",
+            "Availability": "Unknown"
         }
-        table_tag = self.soup.find("table", class_="table table-striped")
-        if table_tag:
-            th_tags = table_tag.find_all("th")
-            if th_tags:
-                informations = {th.string: th.find_next("td").string for th in th_tags if th.string in informations}
-        return informations
+        try:
+            th_tags = self.soup.find("table", class_="table table-striped").find_all("th")
+            return {th.string: th.find_next("td").string for th in th_tags if th.string in informations}
+        except (AttributeError, IndexError) as error:
+            return informations
 
     @cached_property
     def _extracted_universal_product_code(self) -> str:
@@ -77,11 +76,10 @@ class ProductScraper(BooksToScrapeScraper):
     
     @cached_property
     def _extracted_title(self) -> str:
-        title = "Unknown title"
-        tag = self.soup.find("h1")
-        if tag:
-            title = tag.string
-        return title
+        try:
+            return self.soup.find("h1").string
+        except AttributeError:
+            return "Unknown"
     
     @cached_property
     def _extracted_price_including_tax(self) -> str:
@@ -97,29 +95,31 @@ class ProductScraper(BooksToScrapeScraper):
     
     @cached_property
     def _extracted_product_description(self) -> str:
-        description = "Unknown description"
-        tag = self.soup.find("div", id="product_description")
-        if tag:
-            description = tag.find_next("p").string
-        return description
+        try:
+            return self.soup.find("div", id="product_description").find_next("p").string
+        except (AttributeError, IndexError) as error:
+            return "Unknown"
     
     @cached_property
     def _extracted_category(self) -> str:
-        category = "Unknown category"
-        ul_tag = self.soup.find("ul", class_="breadcrumb")
-        if ul_tag:
-            a_tags = ul_tag.find_all("a")
-            if a_tags:
-                category = a_tags[-1].string
-        return category
+        try:
+            return self.soup.find("ul", class_="breadcrumb").find_all("a")[-1].string
+        except (AttributeError, IndexError) as error:
+            return "Unknown"
     
     @cached_property
     def _extracted_review_rating(self) -> str:
-        return self.soup.find("p", class_="star-rating")["class"][1]
+        try:
+            return self.soup.find("p", class_="star-rating")["class"][1]
+        except IndexError:
+            return "Unknown"
     
     @cached_property
     def _extracted_image_url(self) -> str:
-        return self.soup.find("div", class_="item active").find("img")["src"]
+        try:
+            return self.soup.find("div", class_="item active").find("img")["src"]
+        except (AttributeError, IndexError) as error:
+            return "Unknown"
 
     # transform public properties --------------------------------------------
     @cached_property
