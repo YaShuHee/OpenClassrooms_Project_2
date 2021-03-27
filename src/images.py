@@ -19,12 +19,13 @@ class Downloader:
         extension = mimetypes.guess_extension(response.headers["content-type"])
         if os.path.exists(directory_path):
             self.path = os.path.join(directory_path, image_name + extension)
+        else:
+            raise FileExistsError
         if response.ok:
             self.content = response.content
             self._write()
         else:
             print(f"Couldn't download image at URL : {url}")
-            del self
 
     def _write(self):
         with open(self.path, "wb") as file:

@@ -5,7 +5,6 @@
 # IMPORTS -------------------------------------------------------------------+
 # +--- Scraping imports -----------------------------------------------------+
 import requests
-import bs4
 from bs4 import BeautifulSoup
 from images import Downloader
 
@@ -60,8 +59,8 @@ class ProductScraper(BooksToScrapeScraper):
     def _extracted_product_informations_from_table(self) -> dict:
         informations = {
             "UPC": "Unknown",
-            "Price (incl. tax)": " Unknown",
-            "Price (excl. tax)": " Unknown",
+            "Price (incl. tax)": "Unknown",
+            "Price (excl. tax)": "Unknown",
             "Availability": "Unknown"
         }
         try:
@@ -71,27 +70,11 @@ class ProductScraper(BooksToScrapeScraper):
             return informations
 
     @cached_property
-    def _extracted_universal_product_code(self) -> str:
-        return self._extracted_product_informations_from_table["UPC"]
-
-    @cached_property
     def _extracted_title(self) -> str:
         try:
             return self.soup.find("h1").string
         except AttributeError:
             return "Unknown"
-
-    @cached_property
-    def _extracted_price_including_tax(self) -> str:
-        return self._extracted_product_informations_from_table["Price (incl. tax)"]
-
-    @cached_property
-    def _extracted_price_excluding_tax(self) -> str:
-        return self._extracted_product_informations_from_table["Price (excl. tax)"]
-
-    @cached_property
-    def _extracted_number_available(self) -> str:
-        return self._extracted_product_informations_from_table["Availability"]
 
     @cached_property
     def _extracted_product_description(self) -> str:
@@ -124,7 +107,7 @@ class ProductScraper(BooksToScrapeScraper):
     # transform public properties --------------------------------------------
     @cached_property
     def universal_product_code(self) -> str:
-        return self._extracted_universal_product_code
+        return self._extracted_product_informations_from_table["UPC"]
 
     @cached_property
     def title(self) -> str:
@@ -132,15 +115,15 @@ class ProductScraper(BooksToScrapeScraper):
 
     @cached_property
     def price_including_tax(self) -> str:
-        return self._extracted_price_including_tax[1:]
+        return self._extracted_product_informations_from_table["Price (incl. tax)"].replace("£", "")
 
     @cached_property
     def price_excluding_tax(self) -> str:
-        return self._extracted_price_excluding_tax[1:]
+        return self._extracted_product_informations_from_table["Price (excl. tax)"].replace("£", "")
 
     @cached_property
     def number_available(self) -> str:
-        return self._extracted_number_available.replace("In stock (", "").replace(" available)", "")
+        return self._extracted_product_informations_from_table["Availability"].replace("In stock (", "").replace(" available)", "")
 
     @cached_property
     def product_description(self) -> str:
