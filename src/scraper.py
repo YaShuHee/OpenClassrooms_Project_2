@@ -21,6 +21,10 @@ import os
 import csv
 
 
+# +--- Urllib import --------------------------------------------------------+
+import urllib.parse
+
+
 # CLASSES -------------------------------------------------------------------+
 # +--- BeautifulSoup4 generic HTML page scraper -----------------------------+
 class Scraper:
@@ -43,6 +47,7 @@ class BooksToScrapeScraper(Scraper):
         "review_rating",
         "image_url"
     )
+    url_root = "https://books.toscrape.com/"
 
     @staticmethod
     def write_csv(file_path: str, *books_informations: list) -> None:
@@ -145,7 +150,7 @@ class ProductScraper(BooksToScrapeScraper):
 
     @cached_property
     def image_url(self) -> str:
-        return self._extracted_image_url.replace("../..", "https://books.toscrape.com")
+        return urllib.parse.urljoin(self.url_root, self._extracted_image_url)
 
     # extracted and transformed informations merging -------------------------
     @cached_property
@@ -176,7 +181,7 @@ class ProductScraper(BooksToScrapeScraper):
 class CategoryPageURLScraper(Scraper):
     @cached_property
     def books_url_list(self) -> list:
-        return [article.find("a")["href"].replace("../../..", "http://books.toscrape.com/catalogue") for article in self.soup.find_all("article")]
+        return [urllib.parse.urljoin(self.url, article.find("a")["href"]) for article in self.soup.find_all("article")]
 
 
 # +--- Category Scraper class ------------------------------------------------+
@@ -201,7 +206,7 @@ class CategoryScraper(BooksToScrapeScraper):
         # issue #25, error 404 with "*/page-1.html" url for one page categories
         books_url_list = CategoryPageURLScraper(self.url).books_url_list
         for page in range(2, self._page_number + 1):
-            books_url_list += CategoryPageURLScraper(f"{self.url}page-{page}.html").books_url_list
+            books_url_list += CategoryPageURLScraper(urllib.parse.urljoin(self.url, f"page-{page}.html")).books_url_list
         return books_url_list
 
     @cached_property
