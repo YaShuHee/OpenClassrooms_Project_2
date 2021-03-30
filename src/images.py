@@ -5,30 +5,39 @@
 # IMPORTS -------------------------------------------------------------------+
 # +--- Scraping imports -----------------------------------------------------+
 import requests
+import mimetypes
 
 
 # +--- Os imports -----------------------------------------------------------+
-from os import sep
+import os
 
 
 # CLASS ---------------------------------------------------------------------+
 class Downloader:
-    def __init__(self, url: str, name: str, directory_path: str):
-        self.url = url
-        self.path = directory_path + sep + name
+    """ An image downloader.
+    Download binary data from an given url and write it in a file with given
+    name at a given directory path.
+    Instantiating an object from this class will automatically create a file
+    without needing another method call.
+    Even if designed to download image, it could be used to download any
+    binary file from an url. """
+
+    def __init__(self, url: str, image_name: str, directory_path: str):
+        """ Downloader class constructor. It will automatically call private
+        method _write. """
         response = requests.get(url)
+        extension = mimetypes.guess_extension(response.headers["content-type"])
+        if os.path.exists(directory_path):
+            self.path = os.path.join(directory_path, image_name + extension)
+        else:
+            raise FileExistsError
         if response.ok:
             self.content = response.content
             self._write()
         else:
             print(f"Couldn't download image at URL : {url}")
-            del self
 
     def _write(self):
+        """ Write the downloaded binary data in a file. """
         with open(self.path, "wb") as file:
             file.write(self.content)
-
-
-# CODE EXECUTION ------------------------------------------------------------+
-if __name__ == '__main__':
-    Downloader("http://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg", "A light in the Attic.jpg", input("directory :"))
