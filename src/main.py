@@ -4,7 +4,7 @@
 
 # IMPORTS -------------------------------------------------------------------+
 # +--- Scraping imports -----------------------------------------------------+
-from src.scraper import WebsiteScraper
+from scraper import WebsiteScraper
 
 
 # FUNCTIONS -----------------------------------------------------------------+

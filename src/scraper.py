@@ -6,7 +6,7 @@
 # +--- Scraping imports -----------------------------------------------------+
 import requests
 from bs4 import BeautifulSoup
-from src.image import Downloader
+from image import Downloader
 
 
 # +--- Decorator imports ----------------------------------------------------+

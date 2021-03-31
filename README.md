@@ -52,9 +52,15 @@ Install [Python3](https://www.python.org/downloads/) on your computer (version 3
 
 #### Create a Python3 virtual environment
 Run this command from inside the "OpenClassrooms_Project_2" directory you unzipped sooner :
-```shell script
-python3 -m venv env
-```
+* On Windows :
+    ```shell script
+    py -3 -m venv env
+    ```
+
+* On Linux/MacOS :
+    ```shell script
+    python3 -m venv env
+    ```
 It will create a directory named "env", including a full Python3 virtual environment, totally independant from your main Python3 installation, having its own installed packages.
 
 * On Windows :
@@ -96,7 +102,7 @@ From now, whenever you want to run the project, just activate your environment a
 ## User instructions
 Just run the main.py script with python, by running this command from the project 's root :
 ```shell script
-python3 ./src/main.py
+python ./src/main.py
 ```
 
 <br><br><br><br>
@@ -154,9 +160,15 @@ Installez [Python3](https://www.python.org/downloads/) sur votre ordinateur (ver
 
 #### Créez un environnement virtuel Python3
 Exécutez cette commande depuis la racine du projet "OpenClassrooms_Project_2" que vous avez téléchargé plus tôt :
-```shell script
-python3 -m venv env
-```
+* Sur Windows :
+    ```shell script
+    py -3 -m venv env
+    ```
+
+* Sur Linux/MacOS :
+    ```shell script
+    python3 -m venv env
+    ```
 Un dossier "env" est créé, contenant un environnement virtuel Python3 totalement fonctionnel et indépendant de votre installation principale de Python3, avec ses propres packets installés.
 
 * Sur Windows :
@@ -198,5 +210,5 @@ Désormais, dès que vous voulez utiliser ce projet, activez simplement votre en
 ## Mode d'emploi
 Exécutez simplement le script main.py avec python en tapant la commande suivante depuis la racine du projet :
 ```shell script
-python3 ./src/main.py
+python ./src/main.py
 ```
