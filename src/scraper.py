@@ -6,7 +6,7 @@
 # +--- Scraping imports -----------------------------------------------------+
 import requests
 from bs4 import BeautifulSoup
-from src.images import Downloader
+from src.image import Downloader
 
 
 # +--- Decorator imports ----------------------------------------------------+
@@ -200,7 +200,7 @@ class ProductScraper(BooksToScrapeScraper):
     @cached_property
     def informations(self) -> dict:
         """ Return all product transformed informations in a dict. """
-        return {
+        informations = {
             "product_page_url": self.url,
             "universal_product_code": self.universal_product_code,
             "title": self.title,
@@ -212,6 +212,8 @@ class ProductScraper(BooksToScrapeScraper):
             "review_rating": self.review_rating,
             "image_url": self.image_url,
         }
+        print(f"Successfully scraped <{self.title}> book informations from <{self.category}> category.")
+        return informations
 
     # utils methods and properties
     @cached_property
@@ -267,11 +269,14 @@ class CategoryScraper(BooksToScrapeScraper):
             books_url_list += CategoryPageURLScraper(urllib.parse.urljoin(self.url, f"page-{page}.html")).books_urls
         return books_url_list
 
-    @cached_property
+    @property   # no more cached (so that generator can be called 2 times)
     def books_scrapers(self) -> list:
-        """ Return a list of ProductScraper objects for all the books for this
-        category. """
-        return [ProductScraper(url) for url in self._books_urls]
+        """ Return a generator of ProductScraper objects for all the books
+        from this category. """
+        # changed implementation so that all verbose doesn't freeze and print
+        # every books scraped at the end of list comprehension.
+        for url in self._books_urls:
+            yield ProductScraper(url)
 
     def _load(self) -> None:
         """ Implement loading part from ETL process, doing following actions :
@@ -280,6 +285,16 @@ class CategoryScraper(BooksToScrapeScraper):
         of the category.
         Create a CSV file inside the category directory.
         Create the images in the subdirectory. """
+
+        # urls scraping and verbose
+        print(f"Scraping books URLs from the <{self.name}> category.")
+        books_nb = len(self._books_urls)
+        print(f"{books_nb} books found in <{self.name}> category.\n")
+
+        # books scraping and verbose
+        print(f"Scraping books informations from the <{self.name}> category.")
+
+        # _load execution
         self.directory = os.path.join(self.directory, self.name)
         self.images_directory = os.path.join(self.directory, "images")
         try:
@@ -291,8 +306,14 @@ class CategoryScraper(BooksToScrapeScraper):
         except FileExistsError:
             pass
         self._write_csv()
+        print(f"\nSuccessfully generated <{self.name}> category CSV file.\n")
+
+        counter = 1
         for book in self.books_scrapers:
+            print(f"({counter}/{books_nb})Downloading <{book.title}> image.")
             Downloader(book.image_url, book.clean_title + ".jpg", self.images_directory)
+            print(f"Successfully scraped <{book.title}> image.")
+            counter += 1
 
     def _write_csv(self) -> None:
         """ Create the CSV file containing all informations from the books
@@ -328,5 +349,14 @@ class WebsiteScraper(BooksToScrapeScraper):
 
     def _scrape(self) -> None:
         """ Create a CategoryScraper for each found category. """
+        # verbose
+        print("Scraping categories")
+        categories_nb = len(self._categories)
+        print(f"{categories_nb} categories found.\n")
+        counter = 1
+        # method execution
         for name, url in self._categories.items():
+            print(f"[{counter}/{categories_nb}] Scraping <{name}> category.")
             CategoryScraper(url, name, self.directory)
+            print(f"Successfully scraped <{name}> category.\n\n")
+            counter += 1
